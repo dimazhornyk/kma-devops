@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deployment
+  labels:
+    name: app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: app
+  template:
+    metadata:
+      labels:
+        name: app
+    spec:
+      containers:
+        - name: app
+          image: "dimazhornyk/node-app"
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 3000
+            failureThreshold: 1
+            periodSeconds: 10
+        - name: nginx
+          image: "mclueppers/nginx-sidecar"
+          env:
+            - name: APP_PORT
+              value: "3000"
+            - name: LISTEN_PORT
+              value: "80"
