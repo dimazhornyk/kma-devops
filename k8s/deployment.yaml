@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
         - name: app
-          image: "dimazhornyk/node-app"
+          image: dimazhornyk/node-app:1.0
+          imagePullPolicy: Never
           livenessProbe:
             httpGet:
               path: /healthcheck
@@ -24,9 +25,14 @@ spec:
             failureThreshold: 1
             periodSeconds: 10
         - name: nginx
-          image: "mclueppers/nginx-sidecar"
-          env:
-            - name: APP_PORT
-              value: "3000"
-            - name: LISTEN_PORT
-              value: "80"
+          image: nginx:1.15
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: /etc/nginx/conf.d
+              name: nginx-conf
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: nginx
